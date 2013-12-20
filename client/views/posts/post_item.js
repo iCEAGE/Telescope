@@ -46,7 +46,7 @@ Template.post_item.helpers({
     return html_body.autoLink();
   },
   ago: function(){
-    // if post is approved show submission time, else show creation time. 
+    // if post is approved show submission time, else show creation time.
     time = this.status == STATUS_APPROVED ? this.submitted : this.createdAt;
     return moment(time).fromNow();
   },
@@ -56,7 +56,7 @@ Template.post_item.helpers({
   },
   voted: function(){
     var user = Meteor.user();
-    if(!user) return false; 
+    if(!user) return false;
     return _.include(this.upvoters, user._id);
   },
   userAvatar: function(){
@@ -75,6 +75,42 @@ Template.post_item.helpers({
   },
   pointsUnitDisplayText: function(){
     return this.votes == 1 ? i18n.t('point') : i18n.t('points');
+  },
+  related_stories: function(){
+    var self = this;
+    var re = /\/(\d+)$/;
+    var id = re.exec(document.URL);
+
+    if (id && id[1] == self.id){
+      $.ajax({
+        url: "http://talkinterest.com:8087/related",
+        dataType: 'jsonp',
+        data: {
+          id: self.id,
+          threshold_score: 0.9
+        },
+        success: function(data) {
+          var related_posts = "";
+          var related_stories = _.reject(data.related_stories, function(s){
+            return parseInt(s.id) < 326412;
+          });
+
+          related_stories = _.uniq(related_stories, function(s){
+            return s.title;
+          });
+
+          _.each(related_stories.slice(0,3), function(story, index){
+            related_posts += "<li><a href='/posts/" + story.id + "'>" +
+              story.title + " (" + story.source_name + ")" + "</li>";
+          });
+          $("#related_stories_" + self.id + " ul").html(related_posts);
+          console.log(related_stories.length);
+          if (related_stories && related_stories && related_stories.length > 0){
+            $("div#related_stories_" + self.id).css("display", "block");
+          }
+        }
+      });
+    }
   }
 });
 
@@ -87,9 +123,9 @@ var recalculatePosition = function ($object, pArray) {
     // send object back to previous position
     $object.removeClass('animate').css("top", delta + "px");
     // then wait a little and animate it to new one
-    setTimeout(function() { 
+    setTimeout(function() {
       $object.addClass('animate').css("top", "0px")
-    }, 1);  
+    }, 1);
   }
 }
 
@@ -108,7 +144,6 @@ Template.post_item.rendered = function(){
   // if this is *not* the first render, recalculate positions
   if(instance.pArray.length>1)
     recalculatePosition($instance, instance.pArray);
-
 };
 
 Template.post_item.events({

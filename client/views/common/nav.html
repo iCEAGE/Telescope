@@ -23,7 +23,9 @@
         <div class="dropdown-menu">
           <ul role="menu" aria-labelledby="dLabel">
             {{# each categories}}
-              <li><a class="pending" href="{{categoryLink}}">{{name}}</a></li>
+              {{#unless hidden}}
+                <li><a class="pending" href="{{categoryLink}}">{{name}}</a></li>
+              {{/unless}}
             {{/each}}
           </ul>
         </div>

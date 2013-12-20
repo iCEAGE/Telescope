@@ -48,7 +48,16 @@
       </div>
     </div>
     {{#if body}}
-      <div class="post-message markdown">{{{body_formatted}}}</div>
+      <div class="post-message markdown">
+        {{{body_formatted}}}
+
+        <div id="related_stories_{{_id}}" style="display:none">
+          <h3>Related Stories</h3>
+          <ul>
+            {{related_stories}}
+          </ul>
+        </div>
+      </div>
     {{/if}}
   </div>
   {{/with}}
